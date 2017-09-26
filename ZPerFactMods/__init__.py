@@ -12,7 +12,7 @@ fixes = [
 
 # Apply the fixes
 for fix in fixes:
-    __import__('Products.PerFactPatches201301.%s' % fix)
+    __import__('Products.ZPerFactMods.%s' % fix)
     try:
         logger.info('Applied %s patch' % fix)
     except:
