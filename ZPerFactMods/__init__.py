@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger('Products.ZPerFactMods')
 
 fixes = [
+    'dbutilsPermissions',
     'defaultError',
     'pageTemplateDefaults',
     'protectedURLs',
