@@ -7,13 +7,14 @@ fixes = [
     'pageTemplateDefaults',
     'protectedURLs',
     'disableConnectOnLoad',
+    'allowScriptModules',
     # 'logAllEvents',
     ]
 
 
 # Apply the fixes
 for fix in fixes:
-    __import__('Products.ZPerFactMods.%s' % fix)
+    __import__('.%s' % fix)
     try:
         logger.info('Applied %s patch' % fix)
     except:
@@ -25,4 +26,5 @@ from AccessControl.SecurityInfo import ClassSecurityInfo
 chameleon.zpt.template.Macros.security = ClassSecurityInfo()
 chameleon.zpt.template.Macros.security.declareObjectPublic()
 chameleon.zpt.template.Macros.__allow_access_to_unprotected_subobjects__ = True
+
 logger.info('Patches installed')
