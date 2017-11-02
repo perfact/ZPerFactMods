@@ -18,4 +18,11 @@ for fix in fixes:
         logger.info('Applied %s patch' % fix)
     except:
         logger.warn('Could not apply %s' % fix)
+
+import chameleon.zpt.template
+from AccessControl.SecurityInfo import ClassSecurityInfo 
+# Declare Macros public
+chameleon.zpt.template.Macros.security = ClassSecurityInfo()
+chameleon.zpt.template.Macros.security.declareObjectPublic()
+chameleon.zpt.template.Macros.__allow_access_to_unprotected_subobjects__ = True
 logger.info('Patches installed')

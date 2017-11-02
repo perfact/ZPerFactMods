@@ -1,0 +1,10 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser">
+  <browser:page for="ZPublisher.NotFound"
+                layer="zope.publisher.interfaces.browser.IBrowserRequest"
+                class=".errors.NotFoundView"
+                name="index.html"
+                permission="zope.Public"
+                template="notfound.pt">
+  </browser:page>
+</configure>

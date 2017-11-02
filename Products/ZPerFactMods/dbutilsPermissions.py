@@ -4,7 +4,7 @@
 
 from Acquisition import Implicit
 from AccessControl.SecurityInfo import ClassSecurityInfo 
-import Globals
+import AccessControl.class_init
 import logging
 logger = logging.getLogger('Products.ZPerFactMods.dbutilsPermissions')
 
@@ -35,5 +35,5 @@ class DBUtilsPermissions(Implicit):
         logger.info('Adding Permission %s' % p)
         security.declareProtected(p, m)
 
-Globals.InitializeClass(DBUtilsPermissions)
+AccessControl.class_init.InitializeClass(DBUtilsPermissions)
 

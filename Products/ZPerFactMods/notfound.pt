@@ -1,0 +1,1 @@
+<tal:x content="structure python: view.request['PARENTS'][-1].standard_error_message_minimal()"/>
