@@ -14,7 +14,7 @@ def _error_html(self, title, body):
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <script type="text/javascript">
-      window.setInterval('window.location.reload()', 10000);
+      window.setTimeout('window.history.back()', 10000);
     </script>
   </head>
   <body style="background-color: #eee; margin: 0px">
