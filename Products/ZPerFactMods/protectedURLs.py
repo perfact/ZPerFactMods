@@ -28,18 +28,25 @@ def protectedURLHandler(event):
                 # For product instances we take the object itself.
                 obj = event.request.PUBLISHED
 
-            # If there's an ID, we control private behaviour by ending the
-            # name with an underscore (_)
-            if hasattr(obj, 'getId'):
-                protected = obj.getId().endswith('_')
-            else:
-                protected = False
+            def is_protected(obj):
+                # If there's an ID, we control private behaviour by ending the
+                # name with an underscore (_)
+                if hasattr(obj, 'getId') and obj.getId().endswith('_'):
+                    return True
 
-            if hasattr(obj, 'title'):
-                if callable(obj.title):
-                    protected = obj.title().startswith('_protected')
-                elif isinstance(obj.title, basestring):
-                    protected = obj.title.startswith('_protected')
+                if hasattr(obj, 'title'):
+                    if callable(obj.title):
+                        if obj.title().startswith('_protected'):
+                            return True
+                    elif (isinstance(obj.title, basestring) 
+                            and obj.title.startswith('_protected')):
+                        return True
+                if obj.isTopLevelPrincipiaApplicationObject:
+                    return False
+                # TODO: recurse to parent
+                return is_protected(obj.aq_parent)
+
+            protected = is_protected(obj)
                 
     except:
         logger.info('Exception raised in protectedURLHandler. '
