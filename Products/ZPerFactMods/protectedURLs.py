@@ -41,9 +41,10 @@ def protectedURLHandler(event):
                     elif (isinstance(obj.title, basestring) 
                             and obj.title.startswith('_protected')):
                         return True
+                # break recursion if in root object
                 if obj.isTopLevelPrincipiaApplicationObject:
                     return False
-                # TODO: recurse to parent
+                # recurse to parent
                 return is_protected(obj.aq_parent)
 
             protected = is_protected(obj)
