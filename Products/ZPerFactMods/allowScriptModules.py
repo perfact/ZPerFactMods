@@ -21,6 +21,9 @@ allow_module("re")
 # Allow the datetime module
 allow_module("datetime")
 
+# Allow the time module
+allow_module("time")
+
 # Allow access to python module "perfact" and submodules
 allow_module("perfact.LDAP")
 allow_module("perfact.asterisk_utils.py")
