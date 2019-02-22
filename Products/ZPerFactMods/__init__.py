@@ -8,6 +8,7 @@ fixes = [
     'protectedURLs',
     'disableConnectOnLoad',
     'allowScriptModules',
+    'ZServer_hideversion',
     # 'logAllEvents',
     ]
 
