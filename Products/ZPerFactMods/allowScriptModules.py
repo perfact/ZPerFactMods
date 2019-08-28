@@ -67,6 +67,7 @@ allow_module("perfact.webservice")
 allow_module("perfact.winvnc")
 allow_module("perfact.xls")
 allow_module("perfact.zopeinterface")
+allow_module("perfact.zodbsync")
 
 # This is on by default in Zope2, but not in Zope4
 allow_module("Products.PythonScripts.standard")
