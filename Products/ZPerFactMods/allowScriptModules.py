@@ -76,3 +76,9 @@ allow_module("Products.PythonScripts.standard")
 # the class.
 from perfact.dbconn import DBConn
 allow_class(DBConn)
+
+from perfact.latex import HTML2Tex
+allow_class(HTML2Tex)
+
+from perfact.network import InterfacesParser
+allow_class(InterfacesParser)
