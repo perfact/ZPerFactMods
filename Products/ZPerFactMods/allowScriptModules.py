@@ -24,6 +24,9 @@ allow_module("datetime")
 # Allow the time module
 allow_module("time")
 
+# Allow ZTUtils, it provides url_query which is used in db_edit_magnetic
+allow_module("ZTUtils")
+
 # Allow access to python module "perfact" and submodules
 allow_module("perfact.LDAP")
 allow_module("perfact.asterisk_utils")
