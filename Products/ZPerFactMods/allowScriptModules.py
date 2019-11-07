@@ -77,11 +77,20 @@ allow_module("Products.PythonScripts.standard")
 
 # In order to use the central connector, we need to allow access to
 # the class.
-from perfact.dbconn import DBConn
-allow_class(DBConn)
+try:
+    from perfact.dbconn import DBConn
+    allow_class(DBConn)
+except ImportError:
+    pass
 
-from perfact.latex import HTML2Tex
-allow_class(HTML2Tex)
+try:
+    from perfact.latex import HTML2Tex
+    allow_class(HTML2Tex)
+except ImportError:
+    pass
 
-from perfact.network import InterfacesParser
-allow_class(InterfacesParser)
+try:
+    from perfact.network import InterfacesParser
+    allow_class(InterfacesParser)
+except ImportError:
+    pass
