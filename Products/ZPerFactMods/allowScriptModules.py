@@ -75,6 +75,8 @@ allow_module("perfact.zodbsync")
 # This is on by default in Zope2, but not in Zope4
 allow_module("Products.PythonScripts.standard")
 
+allow_module("DocumentTemplate.DT_Var")
+
 # In order to use the central connector, we need to allow access to
 # the class.
 try:
