@@ -26,6 +26,7 @@ class DBUtilsPermissions(Implicit):
         ('zDB_Delete_Records', 'delete'),
         ('zDB_Update_Records', 'update'),
         ('zDB_Insert_Records', 'insert'),
+        ('zDB_Export_Records', 'export'),
         ('zI18N_Translate_Entries', 'translate'), # DEPRECATED
         ('zLayout_Edit_Docs', 'edit_docs')
     ]
