@@ -15,6 +15,8 @@ class DBUtilsPermissions(Implicit):
         return
     def delete(self):
         return
+    def export(self):
+        return
     def translate(self):
         return
     def edit_docs(self):
