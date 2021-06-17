@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '3.14.1'
+version = '4.1.0'
 
 setup(name='Products.ZPerFactMods',
       version=version,
