@@ -19,7 +19,7 @@ def is_protected(obj):
     if hasattr(obj, 'getId') and obj.getId().endswith('_'):
         return True
 
-    title = getattr(obj, 'title')
+    title = getattr(obj, 'title', None)
     if title is not None:
         if callable(title):
             title = title()
