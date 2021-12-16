@@ -9,8 +9,9 @@ fixes = [
     'disableConnectOnLoad',
     'allowScriptModules',
     'ZServer_hideversion',
+    'sessionWrapper',
     # 'logAllEvents',
-    ]
+]
 
 
 # Apply the fixes
