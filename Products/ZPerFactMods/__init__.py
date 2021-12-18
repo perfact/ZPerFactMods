@@ -9,7 +9,7 @@ fixes = [
     'disableConnectOnLoad',
     'allowScriptModules',
     'ZServer_hideversion',
-    'sessionWrapper',
+    'requestWrapper',
     # 'logAllEvents',
 ]
 
