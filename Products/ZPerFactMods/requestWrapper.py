@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger('Products.ZPerFactMods.requestWrapper')
 
+
 def call_hook(event, method):
     """
     Find a method named `method` in the current context and call it, unless the
@@ -35,7 +36,7 @@ def call_hook(event, method):
 
     try:
         hook()
-    except Exception as err:
+    except Exception:
         logger.exception("Error while calling " + method)
         pass
 
