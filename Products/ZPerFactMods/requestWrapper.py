@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger('Products.ZPerFactMods.requestWrapper')
 
 def call_hook(event, method):
-    f = None
+    hook = None
     try:
         title = event.request.PUBLISHED.title
         if callable(title):
@@ -20,12 +20,13 @@ def call_hook(event, method):
         if isinstance(title, six.text_type) and u'NO_REQWRAP' in title:
             return
 
-        f = getattr(event.request.PARENTS[0], method)
+        hook = getattr(event.request.PARENTS[0], method)
     except Exception:
+        # Hook not implemented, published object has no title, ...
         return
 
     try:
-        f()
+        hook()
     except Exception as err:
         logger.exception("Error while calling " + method)
         pass
