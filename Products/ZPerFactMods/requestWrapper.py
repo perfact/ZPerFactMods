@@ -36,7 +36,7 @@ def get_context(event):
 def request_init(event):
     """
     Call request_init before calling the published object. If it is not found,
-    call layout_init as compatibility fallback, but remove the layer counter
+    call layout_init as compatibility fallback, but adjust the layer counter
     from the request. This ensures that calls to layout_init and layout_end
     that are done by the published method itself still are executed and assume
     that they are the outermost layer, otherwise some older versions of
@@ -49,7 +49,7 @@ def request_init(event):
 
     if hasattr(context, 'layout_init'):
         context.layout_init()
-        event.request.set('__layout_init', None)
+        event.request.set('__layout_init', 0)
 
 
 @zope.component.adapter(ZPublisher.pubevents.PubBeforeCommit)
