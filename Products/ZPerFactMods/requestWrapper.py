@@ -16,8 +16,7 @@ def call_hook(event, method):
     published object has a title that contains NO_REQWRAP.
     This is also called for a lot of internal methods like ZMI ressources,
     which sometimes have to title property. Such errors as well as the
-    situation where the hook is not present are caught and ignored. Errors
-    while calling the hook, on the other hand, are caught and logged.
+    situation where the hook is not present are caught and ignored.
     """
     hook = None
     try:
@@ -34,11 +33,7 @@ def call_hook(event, method):
         # Hook not implemented, published object has no title, ...
         return
 
-    try:
-        hook()
-    except Exception:
-        logger.exception("Error while calling " + method)
-        pass
+    hook()
 
 
 @zope.component.adapter(ZPublisher.pubevents.PubAfterTraversal)
