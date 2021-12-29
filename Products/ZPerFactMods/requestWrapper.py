@@ -57,9 +57,9 @@ def request_init(event):
     context = get_context(event)
 
     if hasattr(context, 'request_init'):
-        return context.request_init()
+        context.request_init()
 
-    if hasattr(context, 'layout_init'):
+    elif hasattr(context, 'layout_init'):
         context.layout_init()
         event.request.set('__layout_init', 0)
 
@@ -79,10 +79,10 @@ def request_end(event):
     context = get_context(event)
 
     if hasattr(context, 'request_end'):
-        return context.request_end()
+        context.request_end()
 
-    if hasattr(context, 'layout_end'):
-        return context.layout_end()
+    elif hasattr(context, 'layout_end'):
+        context.layout_end()
 
 
 zope.component.provideHandler(request_init)
