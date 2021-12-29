@@ -30,12 +30,12 @@ def get_context(event):
             return None
 
         context = event.request.PARENTS[0]
-        parents = [obj.id for obj in event.request.PARENTS]
+        parents = {obj.id for obj in event.request.PARENTS}
         root = context.get_site()
-        nav_acquire = root.nav_acquire
+        nav_acquire = set(root.nav_acquire)
 
-        my_context = context
-        if len([part for part in nav_acquire if part not in parents]):
+        if len(nav_acquire.difference(parents)):
+            # Parts from nav_acquire are missing
             return root
         return context
 
