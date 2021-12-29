@@ -15,7 +15,7 @@ def get_context(event):
     Look up the context of the published object. Returns None for some
     irregular requests, for example for builtin ZMI assets that have no title
     or when publishing a File object.
-    Also returns None if the context's title contains NO_REQWRAP.
+    Also returns None if the published object's title contains NO_REQWRAP.
     If the context does not contain all necessary acquisition components as
     defined by the nav_acquire property of the site object returned by
     get_site(), returns the site object instead.
