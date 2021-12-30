@@ -15,20 +15,22 @@ def get_context(event):
     Look up the context of the published object. Returns None for some
     irregular requests, for example for builtin ZMI assets that have no title
     or when publishing a File object.
-    Also returns None if the published object's title contains NO_REQWRAP.
+    Also returns None if the published object's title contains _noreqwrap.
     If the context does not contain all necessary acquisition components as
     defined by the nav_acquire property of the site object returned by
     get_site(), returns the site object instead.
     """
-    try:
-        title = event.request.PUBLISHED.title
-        if callable(title):
-            title = title()
-        if isinstance(title, six.binary_type) and b'NO_REQWRAP' in title:
-            return None
-        if isinstance(title, six.text_type) and u'NO_REQWRAP' in title:
-            return None
+    title = getattr(event.request.PUBLISHED, 'title', None)
+    if title is None:
+        return None
+    if callable(title):
+        title = title()
+    if isinstance(title, six.binary_type) and b'_noreqwrap' in title:
+        return None
+    if isinstance(title, six.text_type) and u'_noreqwrap' in title:
+        return None
 
+    try:
         context = event.request.PARENTS[0]
         parents = {obj.id for obj in event.request.PARENTS}
         root = context.get_site()
@@ -38,9 +40,8 @@ def get_context(event):
             # Parts from nav_acquire are missing
             return root
         return context
-
     except Exception:
-        # Hook not implemented, published object has no title, ...
+        logger.exception("Error constructing context")
         return None
 
 
