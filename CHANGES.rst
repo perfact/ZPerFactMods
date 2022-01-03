@@ -1,3 +1,7 @@
+4.3.0
+=====
+- Add automatic calling of request_init/request_end to wrap each request
+
 4.1.0
 =====
 
