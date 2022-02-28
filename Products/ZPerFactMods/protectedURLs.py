@@ -31,8 +31,8 @@ def is_protected(obj):
                 ):
             return True
 
-    # break recursion if in root object
-    if obj.isTopLevelPrincipiaApplicationObject:
+    # break recursion if in root object or the attribute could not be found
+    if getattr(obj, 'isTopLevelPrincipiaApplicationObject', True):
         return False
     # recurse to parent
     return is_protected(obj.aq_parent)
