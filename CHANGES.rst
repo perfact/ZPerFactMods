@@ -1,3 +1,8 @@
+4.3.0
+=====
+- Prevent application error in protected URLs for objects that do not implement
+  ``isTopLevelPrincipiaApplicationObject``.
+
 4.2.0
 =====
 - Add automatic calling of request_init/request_end to wrap each request
