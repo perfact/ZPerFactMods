@@ -79,6 +79,9 @@ allow_module("Products.PythonScripts.standard")
 # Needed for sql_quote()
 allow_module("DocumentTemplate.DT_Var")
 
+# Allow the cbor2-decoder module
+allow_module("cbor2.decoder")
+
 # In order to use the central connector, we need to allow access to
 # the class.
 try:
