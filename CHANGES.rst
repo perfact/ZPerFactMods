@@ -1,3 +1,7 @@
+4.3.1
+=====
+- Allow module cbor2.decoder
+
 4.3.0
 =====
 - Prevent application error in protected URLs for objects that do not implement
