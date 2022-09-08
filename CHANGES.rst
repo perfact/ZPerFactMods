@@ -1,3 +1,9 @@
+22.1.0
+======
+
+- Allow ``perfact.http_protocol``
+- Change versioning to be based on new template versioning scheme
+
 4.3.1
 =====
 - Allow module cbor2.decoder
