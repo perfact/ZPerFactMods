@@ -1,4 +1,4 @@
-22.1.0+nmu1
+23.1.0
 ======
 
 - Allow ``perfact.mfa``
