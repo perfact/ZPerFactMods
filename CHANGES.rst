@@ -1,3 +1,8 @@
+23.2.0
+======
+
+- Autodetect all perfact submodules and allow them.
+
 23.1.0
 ======
 
