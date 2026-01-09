@@ -29,9 +29,11 @@ allow_module("time")
 # Allow ZTUtils, it provides url_query which is used in db_edit_magnetic
 allow_module("ZTUtils")
 
-# Allow access to python module "perfact" and submodules
-for module in pkgutil.iter_modules(perfact.__path__):
-    allow_module('perfact.' + module.name)
+# Allow access to python module "perfact" and submodules, recursively
+# but skip modules in perfact.tests
+for module in pkgutil.walk_packages(perfact.__path__, f'{perfact.__name__}.'):
+    if 'perfact.tests' not in module.name:
+        allow_module(module.name)
 
 # This is on by default in Zope2, but not in Zope4
 allow_module("Products.PythonScripts.standard")
