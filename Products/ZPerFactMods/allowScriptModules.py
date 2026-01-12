@@ -32,7 +32,7 @@ allow_module("ZTUtils")
 # Allow access to python module "perfact" and submodules, recursively
 # but skip modules in perfact.tests
 for module in pkgutil.walk_packages(perfact.__path__, f'{perfact.__name__}.'):
-    if 'perfact.tests' not in module.name:
+    if '.tests' not in module.name:
         allow_module(module.name)
 
 # This is on by default in Zope2, but not in Zope4
