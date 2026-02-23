@@ -3,6 +3,8 @@ import perfact
 from Products.PythonScripts.Utility import allow_module, allow_class
 from AccessControl import ModuleSecurityInfo, ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
+import importlib
+
 
 # Allowing whole modules
 # allow_module("module_name").
@@ -43,6 +45,39 @@ allow_module("DocumentTemplate.DT_Var")
 
 # Allow the cbor2-decoder module
 allow_module("cbor2.decoder")
+
+for module in pkgutil.walk_packages(perfact.__path__, f"{perfact.__name__}."):
+    if ".tests" in module.name:
+        continue
+
+    allowed_mod_name = f"{module.name}.allowedclasses"
+
+    try:
+        allowed_mod = importlib.import_module(allowed_mod_name)
+    except ImportError:
+        # we dont have an allowedclasses module. Skip
+        continue
+
+    if not hasattr(allowed_mod, "__all__"):
+        raise RuntimeError(
+            f"{allowed_mod_name} must define __all__"
+        )
+
+    names = allowed_mod.__all__
+    objects = (getattr(allowed_mod, name, None) for name in names)
+
+    for obj in objects:
+        if obj is None:
+            continue
+
+        # Security check. Check if class is really from perfact package
+        if not obj.__module__.startswith(perfact.__name__):
+            continue
+
+        try:
+            allow_class(obj)
+        except Exception:
+            pass
 
 # In order to use the central connector, we need to allow access to
 # the class.
