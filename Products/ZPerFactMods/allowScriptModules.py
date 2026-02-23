@@ -54,8 +54,7 @@ for module in pkgutil.walk_packages(perfact.__path__, f"{perfact.__name__}."):
 
     try:
         allowed_mod = importlib.import_module(allowed_mod_name)
-    except ImportError:
-        # we dont have an allowedclasses module. Skip
+    except Exception:
         continue
 
     if not hasattr(allowed_mod, "__all__"):
@@ -96,15 +95,5 @@ except ImportError:
 try:
     from perfact.network import InterfacesParser
     allow_class(InterfacesParser)
-except ImportError:
-    pass
-
-try:
-    from perfact.dbutils.conn import ZRDBConnectionWrapper
-    from perfact.dbutils.conn import Namespace
-    from perfact.dbutils.conn import Results
-    allow_class(ZRDBConnectionWrapper)
-    allow_class(Namespace)
-    allow_class(Results)
 except ImportError:
     pass
