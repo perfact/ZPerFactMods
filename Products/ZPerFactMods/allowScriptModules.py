@@ -34,24 +34,11 @@ allow_module("ZTUtils")
 # Allow access to python module "perfact" and submodules, recursively
 # but skip modules in perfact.tests
 for module in pkgutil.walk_packages(perfact.__path__, f'{perfact.__name__}.'):
+    # Allow perfact modules except test modules
     if '.tests' not in module.name:
         allow_module(module.name)
-
-# This is on by default in Zope2, but not in Zope4
-allow_module("Products.PythonScripts.standard")
-
-# Needed for sql_quote()
-allow_module("DocumentTemplate.DT_Var")
-
-# Allow the cbor2-decoder module
-allow_module("cbor2.decoder")
-
-for module in pkgutil.walk_packages(perfact.__path__, f"{perfact.__name__}."):
-    if ".tests" in module.name:
-        continue
-
+    # Check if our package has an allowedclasses module by trying to import it
     allowed_mod_name = f"{module.name}.allowedclasses"
-
     try:
         allowed_mod = importlib.import_module(allowed_mod_name)
     except Exception:
@@ -62,21 +49,26 @@ for module in pkgutil.walk_packages(perfact.__path__, f"{perfact.__name__}."):
             f"{allowed_mod_name} must define __all__"
         )
 
+    # Get names of the allowed classes
     names = allowed_mod.__all__
     objects = (getattr(allowed_mod, name, None) for name in names)
-
+    # Try to allow all given classes
     for obj in objects:
         if obj is None:
             continue
-
-        # Security check. Check if class is really from perfact package
-        if not obj.__module__.startswith(perfact.__name__):
-            continue
-
         try:
             allow_class(obj)
         except Exception:
             pass
+
+# This is on by default in Zope2, but not in Zope4
+allow_module("Products.PythonScripts.standard")
+
+# Needed for sql_quote()
+allow_module("DocumentTemplate.DT_Var")
+
+# Allow the cbor2-decoder module
+allow_module("cbor2.decoder")
 
 # In order to use the central connector, we need to allow access to
 # the class.
