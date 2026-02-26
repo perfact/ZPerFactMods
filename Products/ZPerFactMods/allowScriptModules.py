@@ -35,8 +35,9 @@ allow_module("ZTUtils")
 # but skip modules in perfact.tests
 for module in pkgutil.walk_packages(perfact.__path__, f'{perfact.__name__}.'):
     # Allow perfact modules except test modules
-    if '.tests' not in module.name:
-        allow_module(module.name)
+    if '.tests' in module.name:
+        continue
+    allow_module(module.name)
     # Check if our package has an allowedclasses module by trying to import it
     allowed_mod_name = f"{module.name}.allowedclasses"
     try:
