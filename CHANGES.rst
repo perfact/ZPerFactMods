@@ -1,3 +1,8 @@
+26.2.0
+======
+- Allow all perfact packages and submodules and all classes listed in a
+  package's allowclasses module.
+
 23.2.0
 ======
 
