@@ -89,3 +89,13 @@ try:
     allow_class(InterfacesParser)
 except ImportError:
     pass
+
+try:
+    from perfact.dbutils.conn import ZRDBConnectionWrapper
+    from perfact.dbutils.conn import Namespace
+    from perfact.dbutils.conn import Results
+    allow_class(ZRDBConnectionWrapper)
+    allow_class(Namespace)
+    allow_class(Results)
+except ImportError:
+    pass
