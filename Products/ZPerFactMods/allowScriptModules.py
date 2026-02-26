@@ -3,6 +3,8 @@ import perfact
 from Products.PythonScripts.Utility import allow_module, allow_class
 from AccessControl import ModuleSecurityInfo, ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
+import importlib
+
 
 # Allowing whole modules
 # allow_module("module_name").
@@ -32,8 +34,33 @@ allow_module("ZTUtils")
 # Allow access to python module "perfact" and submodules, recursively
 # but skip modules in perfact.tests
 for module in pkgutil.walk_packages(perfact.__path__, f'{perfact.__name__}.'):
-    if '.tests' not in module.name:
-        allow_module(module.name)
+    # Allow perfact modules except test modules
+    if '.tests' in module.name:
+        continue
+    allow_module(module.name)
+    # Check if our package has an allowedclasses module by trying to import it
+    allowed_mod_name = f"{module.name}.allowedclasses"
+    try:
+        allowed_mod = importlib.import_module(allowed_mod_name)
+    except Exception:
+        continue
+
+    if not hasattr(allowed_mod, "__all__"):
+        raise RuntimeError(
+            f"{allowed_mod_name} must define __all__"
+        )
+
+    # Get names of the allowed classes
+    names = allowed_mod.__all__
+    objects = (getattr(allowed_mod, name, None) for name in names)
+    # Try to allow all given classes
+    for obj in objects:
+        if obj is None:
+            continue
+        try:
+            allow_class(obj)
+        except Exception:
+            pass
 
 # This is on by default in Zope2, but not in Zope4
 allow_module("Products.PythonScripts.standard")
