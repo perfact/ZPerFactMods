@@ -10,6 +10,7 @@ fixes = [
     'allowScriptModules',
     'ZServer_hideversion',
     'requestWrapper',
+    'restrict_xmlrpc',
     # 'logAllEvents',
 ]
 
