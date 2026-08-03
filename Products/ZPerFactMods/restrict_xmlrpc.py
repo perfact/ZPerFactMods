@@ -21,13 +21,24 @@
 # Configuration is read from the environment once, while this module is being
 # imported, and can be set from the <environment> section of zope.conf:
 #
-#     PERFACT_XMLRPC_NETWORKS   comma separated addresses/CIDRs, in addition
-#                               to the always allowed loopback ranges
+#     PERFACT_XMLRPC_NETWORKS   comma separated addresses/CIDRs the call may
+#                               originate from, in addition to the always
+#                               allowed loopback ranges
+#     PERFACT_XMLRPC_PROXIES    comma separated addresses/CIDRs of the proxies
+#                               whose forwarded header we believe, again in
+#                               addition to the loopback ranges
+#     PERFACT_XMLRPC_FORWARDED_HEADER
+#                               name of that header, X-Client-IP by default
 #     PERFACT_XMLRPC_PATHS      comma separated ZODB path prefixes that may be
 #                               called from any source
 #     PERFACT_XMLRPC_SECRET     shared secret expected in the
 #                               X-PerFact-Xmlrpc header, for cluster peers
 #                               whose address is not predictable
+#
+# Beware that the loopback ranges are trusted as proxies by default, because
+# that is where our haproxy runs. A request arriving from loopback *without* the
+# forwarded header is therefore treated as a local caller. This relies on
+# haproxy setting the header unconditionally, which 'option forwardfor' does.
 #
 # Note that a refused request is not an error: Zope simply does not treat it as
 # XML-RPC and publishes index_html as for any other POST. A booking manager
@@ -53,6 +64,14 @@ LOOPBACK = (ipaddress.ip_network("127.0.0.0/8"), ipaddress.ip_network("::1/128")
 # Number of path segments a VirtualHostBase directive occupies, namely the
 # directive itself, the protocol and the host.
 VIRTUAL_HOST_BASE_SEGMENTS = 3
+
+# Header our haproxy setup uses to pass on the original client address, see
+# 'option forwardfor header X-Client-IP' in haproxy.cfg. Note that we cannot
+# use request.getClientAddr() to obtain the client: Zope only ever unwraps
+# X-Forwarded-For (ZPublisher.HTTPRequest.HTTPRequest.__init__), so with our
+# header name it always reports the proxy instead of the caller, no matter what
+# the 'trusted-proxies' directive says.
+DEFAULT_FORWARDED_HEADER = "X-Client-IP"
 
 
 def parse_networks(spec):
@@ -99,6 +118,46 @@ def normalize_addr(addr):
     if isinstance(parsed, ipaddress.IPv6Address) and parsed.ipv4_mapped:
         return parsed.ipv4_mapped
     return parsed
+
+
+def header_key(name):
+    """
+    Return the WSGI environment key a request header arrives under.
+    """
+    return "HTTP_" + name.upper().replace("-", "_")
+
+
+def client_addr(request, proxies, environ_key):
+    """
+    Return the address the request really originates from, or None.
+
+    Our haproxy connects to Zope over the loopback interface, so REMOTE_ADDR is
+    useless on its own: taking it at face value would treat the entire internet
+    as local. If REMOTE_ADDR is one of the proxies we know, believe the
+    forwarded header instead, and pick its *last* entry that is not itself a
+    proxy. haproxy appends to that header rather than replacing it, so a value
+    injected by the caller ends up to the left of the address haproxy observed
+    and cannot win.
+
+    A request from a proxy without the forwarded header is one that did not
+    come through the proxy, for example a call from the booking manager
+    straight to the instance port, so REMOTE_ADDR is used for it.
+    """
+    addr = normalize_addr(request.environ.get("REMOTE_ADDR", ""))
+    if addr is None:
+        return None
+    if not any(addr in network for network in proxies):
+        return addr
+
+    forwarded = request.environ.get(environ_key, "")
+    for entry in reversed(forwarded.split(",")):
+        candidate = normalize_addr(entry.strip())
+        if candidate is None:
+            continue
+        if any(candidate in network for network in proxies):
+            continue
+        return candidate
+    return addr
 
 
 def zodb_path(path_info):
@@ -152,24 +211,31 @@ class SourceNetworks(Rule):
     """
     Admit requests whose client address lies in one of the given networks.
 
-    Uses request.getClientAddr(), which honours the 'trusted-proxies'
-    directive, so X-Forwarded-For is only believed when the request actually
-    arrived from a configured proxy. Without trusted-proxies the address seen
-    here is the load balancer's, not the caller's.
+    The client address is resolved by client_addr() rather than taken from
+    REMOTE_ADDR, because our haproxy reaches the instances over loopback and
+    would otherwise make every request look local.
     """
 
-    def __init__(self, networks=LOOPBACK):
+    def __init__(
+        self,
+        networks=LOOPBACK,
+        proxies=LOOPBACK,
+        forwarded_header=DEFAULT_FORWARDED_HEADER,
+    ):
         self.networks = tuple(networks)
+        self.proxies = tuple(proxies)
+        self.environ_key = header_key(forwarded_header)
 
     def __call__(self, request):
-        addr = normalize_addr(request.getClientAddr())
+        addr = client_addr(request, self.proxies, self.environ_key)
         if addr is None:
             return False
         return any(addr in network for network in self.networks)
 
     def __repr__(self):
         networks = ", ".join(str(network) for network in self.networks)
-        return f"<SourceNetworks {networks}>"
+        proxies = ", ".join(str(proxy) for proxy in self.proxies)
+        return f"<SourceNetworks {networks} behind {proxies}>"
 
 
 class PathPrefixes(Rule):
@@ -245,7 +311,17 @@ class XmlrpcChecker:
     @staticmethod
     def build_rules():
         networks = parse_networks(os.environ.get("PERFACT_XMLRPC_NETWORKS", ""))
-        rules = [SourceNetworks(LOOPBACK + networks)]
+        proxies = parse_networks(os.environ.get("PERFACT_XMLRPC_PROXIES", ""))
+        rules = [
+            SourceNetworks(
+                LOOPBACK + networks,
+                LOOPBACK + proxies,
+                os.environ.get(
+                    "PERFACT_XMLRPC_FORWARDED_HEADER",
+                    DEFAULT_FORWARDED_HEADER,
+                ),
+            ),
+        ]
 
         paths = parse_paths(os.environ.get("PERFACT_XMLRPC_PATHS", ""))
         if paths:
@@ -278,9 +354,11 @@ class XmlrpcChecker:
             if self.apply_rule(rule, request):
                 return True
         logger.info(
-            "REFUSED XML-RPC from %s for %s",
-            request.getClientAddr(),
+            "REFUSED XML-RPC for %s (REMOTE_ADDR %s, %s %s)",
             request.environ.get("PATH_INFO", ""),
+            request.environ.get("REMOTE_ADDR", ""),
+            DEFAULT_FORWARDED_HEADER,
+            request.environ.get(header_key(DEFAULT_FORWARDED_HEADER), "-"),
         )
         return False
 
