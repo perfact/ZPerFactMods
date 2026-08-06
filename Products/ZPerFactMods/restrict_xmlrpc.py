@@ -32,6 +32,13 @@
 #     PERFACT_XMLRPC_FORWARDED_HEADER
 #                               name of that header, X-Client-IP by default
 #
+# Write addresses in their plain IPv4 form, '192.168.5.7' and not
+# '::ffff:192.168.5.7'. Incoming addresses are unwrapped from the IPv4-mapped
+# IPv6 form before they are matched (see normalize_addr) but the configured
+# ranges are not, so a mapped range would never match anything. This is worth
+# watching out for because the address logged for a refused request can be in
+# the mapped form, and is then copied into the configuration verbatim.
+#
 # Beware that the loopback ranges are trusted as proxies by default, because
 # that is where our haproxy runs. A request arriving from loopback *without* the
 # forwarded header is therefore treated as a local caller. This relies on
