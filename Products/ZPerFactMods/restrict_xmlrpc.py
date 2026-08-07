@@ -184,7 +184,7 @@ class XmlrpcChecker:
         addr = client_addr(request, self.proxies, self.environ_key)
         if addr is not None and any(addr in net for net in self.networks):
             return True
-        logger.info(
+        logger.warning(
             "REFUSED XML-RPC for %s (REMOTE_ADDR %s, %s %s)",
             request.environ.get("PATH_INFO", ""),
             request.environ.get("REMOTE_ADDR", ""),
