@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version = "26.5.0"
+version = "26.6.0"
 
 setup(
     name="Products.ZPerFactMods",
