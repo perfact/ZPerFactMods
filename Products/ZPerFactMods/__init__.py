@@ -1,5 +1,20 @@
 import logging
+from Shared.DC.ZRDB.DA import DA
+
 logger = logging.getLogger('Products.ZPerFactMods')
+logger = logging.getLogger('Products.ZPerFactMods.restrictZSQLTraversal')
+
+
+def _no_web_traversal(self, key):
+    # Raising KeyError makes the publisher return notFound (404)
+    logger.warning(
+        'Blocked URL traversal into Z SQL Method %r (key %r)',
+        self.getId(), key
+    )
+    raise KeyError(key)
+
+
+DA.__getitem__ = _no_web_traversal
 
 fixes = [
     'dbutilsPermissions',
